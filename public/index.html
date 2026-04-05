@@ -3,50 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Breakthesystem Store</title>
+    <title>Breakthesystem - Plataforma Profissional</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
-            --secondary: #0ea5e9;
-            --bg-base: #030712;
-            --glass-bg: rgba(17,24,39,0.7);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-        }
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
-        body { background:var(--bg-base); color:var(--text-main); height:100vh; overflow:hidden; display:flex; flex-direction:column; }
-        .container { flex:1; padding:2rem; text-align:center; }
+        /* Cole aqui TODO o seu CSS original (o que você tinha no começo) */
+        /* Se quiser, posso te ajudar a limpar depois. Por enquanto deixe o que você já tem. */
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🔄 Breakthesystem Store</h1>
-        <p id="status">Carregando do servidor...</p>
-    </div>
+    <!-- Cole aqui TODO o seu HTML original (sidebar, topbar, views, etc.) -->
+    <!-- O importante é que o <script> no final esteja adaptado -->
 
     <script>
+        // ==================== CONEXÃO COM SERVIDOR ====================
         const app = {
+            currentUser: null,
             db: { users: [], products: [], transactions: [], chats: [] },
 
             async loadData() {
                 try {
                     const res = await fetch('/api/db');
-                    if (res.ok) {
-                        this.db = await res.json();
-                        document.getElementById('status').innerHTML = '✅ Conectado ao servidor!<br>Dados carregados com sucesso.';
-                        console.log('Dados carregados:', this.db);
-                    }
-                } catch (e) {
-                    document.getElementById('status').innerHTML = '❌ Não conseguiu conectar ao servidor.<br>Verifique se o servidor está rodando.';
-                    console.error(e);
+                    this.db = await res.json();
+                    console.log("✅ Dados carregados do servidor");
+                } catch(e) {
+                    console.warn("⚠️ Servidor offline");
                 }
+            },
+
+            async saveData() {
+                try {
+                    await fetch('/api/db', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(this.db)
+                    });
+                } catch(e) {}
             },
 
             async init() {
                 await this.loadData();
+                // Aqui você pode chamar o resto do seu código original
+                console.log("App iniciado");
             }
         };
 
