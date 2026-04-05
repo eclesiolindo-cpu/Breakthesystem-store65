@@ -4,50 +4,1784 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Breakthesystem - Plataforma Profissional</title>
+    <!-- FontAwesome para Ícones -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js para Gráficos Reais -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Cole aqui TODO o seu CSS original (o que você tinha no começo) */
-        /* Se quiser, posso te ajudar a limpar depois. Por enquanto deixe o que você já tem. */
+        /* ==========================================================================
+           1. VARIÁVEIS CSS E PALETA DE CORES (TEMA DARK SPACE PROFISSIONAL)
+           ========================================================================== */
+        :root {
+            --primary: #3b82f6; /* Azul principal */
+            --primary-hover: #2563eb; /* Azul interativo */
+            --primary-glow: rgba(59, 130, 246, 0.5);
+            --secondary: #0ea5e9; /* Ciano */
+            --secondary-glow: rgba(14, 165, 233, 0.5);
+            --accent: #8b5cf6; /* Roxo para destaques premium */
+           
+            --bg-base: #030712; /* Fundo super escuro */
+            --glass-bg: rgba(17, 24, 39, 0.7);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.05);
+           
+            --text-main: #f8fafc; /* Branco gelo */
+            --text-muted: #94a3b8; /* Cinza azulado */
+            --text-dark: #cbd5e1;
+           
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+           
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.5);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.5), 0 4px 6px rgba(0,0,0,0.3);
+            --shadow-glow: 0 0 20px var(--primary-glow);
+           
+            --radius-sm: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1.25rem;
+            --radius-full: 9999px;
+           
+            --transition-fast: 0.15s ease-in-out;
+            --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* ==========================================================================
+           2. RESET E TIPOGRAFIA
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            scroll-behavior: smooth;
+        }
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text-main);
+            font-weight: 600;
+            line-height: 1.2;
+        }
+        p { color: var(--text-muted); line-height: 1.6; }
+        a { color: var(--primary); text-decoration: none; transition: var(--transition-normal); }
+        a:hover { color: var(--secondary); }
+        /* ==========================================================================
+           3. BACKGROUND ANIMADO E LAYOUT PRINCIPAL
+           ========================================================================== */
+        #bg-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            background: radial-gradient(circle at center, #0f172a 0%, #030712 100%);
+        }
+        #app-container {
+            display: flex;
+            width: 100%; height: 100%;
+            z-index: 1;
+            position: relative;
+        }
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: var(--glass-border);
+            box-shadow: var(--shadow-md);
+        }
+        /* ==========================================================================
+           4. COMPONENTES UI (BOTÕES, FORMS, CARDS)
+           ========================================================================== */
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border-radius: var(--radius-md);
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: var(--transition-normal);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+       
+        .btn:active { transform: scale(0.98); }
+       
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-hover), var(--primary));
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.7);
+            transform: translateY(-2px);
+        }
+       
+        .btn-secondary { background: var(--glass-highlight); color: var(--text-main); border: var(--glass-border); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+       
+        .btn-outline { background: transparent; border-color: var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: rgba(59, 130, 246, 0.1); box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
+       
+        .btn-success { background: rgba(16, 185, 129, 0.1); color: var(--success); border-color: rgba(16, 185, 129, 0.3); }
+        .btn-success:hover { background: var(--success); color: white; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
+        .btn-danger:hover { background: var(--danger); color: white; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+        .form-group { margin-bottom: 1.5rem; position: relative; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-dark); font-size: 0.9rem; }
+       
+        .form-control {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            color: var(--text-main);
+            font-size: 1rem;
+            transition: var(--transition-normal);
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(0, 0, 0, 0.6);
+            box-shadow: inset 0 0 0 1px var(--primary), 0 0 15px rgba(59, 130, 246, 0.15);
+        }
+        .form-control::placeholder { color: rgba(255, 255, 255, 0.3); }
+        .form-control[type="file"] { padding: 0.8rem; cursor: pointer; color: var(--text-muted); }
+        .card {
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            transition: var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+        .badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        /* ==========================================================================
+           5. SIDEBAR E NAVEGAÇÃO
+           ========================================================================== */
+        #sidebar {
+            width: 280px;
+            display: flex;
+            flex-direction: column;
+            border-right: var(--glass-border);
+            background: rgba(15, 23, 42, 0.8);
+            z-index: 10;
+        }
+        .sidebar-header {
+            padding: 2.5rem 2rem;
+            text-align: center;
+            border-bottom: var(--glass-border);
+            position: relative;
+        }
+        .sidebar-header h2 {
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            font-weight: 800;
+        }
+        .sidebar-header span { color: var(--primary); text-shadow: 0 0 15px rgba(59, 130, 246, 0.6); }
+        .nav-menu { padding: 2rem 0; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; }
+        .nav-item {
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition-normal);
+            border-left: 4px solid transparent;
+            font-weight: 500;
+            position: relative;
+        }
+        .nav-item i { font-size: 1.2rem; width: 24px; text-align: center; transition: var(--transition-fast); }
+        .nav-item:hover { color: var(--text-main); background: rgba(255,255,255,0.03); }
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, transparent 100%);
+            color: var(--text-main);
+            border-left-color: var(--primary);
+        }
+        .nav-item.active i { color: var(--primary); transform: scale(1.1); text-shadow: 0 0 10px var(--primary-glow); }
+        /* ==========================================================================
+           6. MAIN CONTENT E TOPBAR
+           ========================================================================== */
+        #main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+            scroll-behavior: smooth;
+        }
+        #topbar {
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: var(--glass-border);
+            position: sticky;
+            top: 0;
+            backdrop-filter: blur(20px);
+            z-index: 20;
+        }
+       
+        .user-info { display: flex; align-items: center; gap: 1rem; cursor: pointer; padding: 0.5rem; border-radius: var(--radius-md); transition: var(--transition-normal); }
+        .user-info:hover { background: rgba(255,255,255,0.05); }
+       
+        .avatar {
+            width: 48px; height: 48px;
+            border-radius: var(--radius-full);
+            background: var(--glass-highlight);
+            color: var(--text-main);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.2rem;
+            border: 2px solid rgba(255,255,255,0.1);
+            background-size: cover;
+            background-position: center;
+            transition: var(--transition-normal);
+            position: relative;
+        }
+        .avatar.online::after {
+            content: ''; position: absolute; bottom: 0; right: 0;
+            width: 12px; height: 12px; background: var(--success);
+            border-radius: 50%; border: 2px solid var(--bg-base);
+        }
+       
+        /* ==========================================================================
+           7. SISTEMA DE VIEWS (ROTAS INTERNAS) E GRID (ATUALIZADO)
+           ========================================================================== */
+        .view-section {
+            padding: 2.5rem;
+            display: none;
+            opacity: 0;
+            transform: translateY(15px);
+            animation: viewFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .view-section.active { display: block; }
+        @keyframes viewFadeIn { to { opacity: 1; transform: translateY(0); } }
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.2rem; }
+        .grid-5 { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1.2rem; }
+        /* ==========================================================================
+           8. DASHBOARD ESPECÍFICO
+           ========================================================================== */
+        .stat-card { display: flex; align-items: center; gap: 1.5rem; padding: 2rem; }
+        .stat-icon {
+            width: 70px; height: 70px;
+            border-radius: var(--radius-lg);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.1);
+        }
+        .stat-info h4 { color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.5rem; }
+        .stat-info h2 { font-size: 2.2rem; font-weight: 700; color: white; display: flex; align-items: center; gap: 0.5rem; }
+        .chart-container { width: 100%; height: 300px; margin-top: 1rem; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem; }
+        th { padding: 1.2rem; border-bottom: 2px solid rgba(255,255,255,0.05); color: var(--text-dark); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;}
+        td { padding: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--text-muted); vertical-align: middle; }
+        tr:hover td { background: rgba(255,255,255,0.02); color: var(--text-main); }
+        /* ==========================================================================
+           9. MARKETPLACE & PRODUTOS (ESTILO VERTICAL COMPACTO)
+           ========================================================================== */
+        .product-card {
+            padding: 0 !important;
+            display: flex;
+            flex-direction: column;
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        .product-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--primary);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+        }
+        .product-img {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            background-color: #1e293b;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .product-badge {
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+            padding: 4px 10px; border-radius: 6px;
+            font-size: 0.65rem; color: var(--secondary);
+            font-weight: 700; text-transform: uppercase;
+            z-index: 2;
+        }
+        .product-content {
+            padding: 1.2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(to bottom, rgba(15,23,42,0) 0%, rgba(15,23,42,1) 100%);
+        }
+        .product-seller {
+            display: flex; align-items: center; gap: 8px;
+            margin-bottom: 8px; cursor: pointer;
+            transition: 0.2s;
+        }
+        .product-seller:hover span { color: var(--primary); }
+        .seller-avatar {
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .product-seller span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .product-title {
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            font-weight: 600;
+            color: #fff;
+            height: 2.8em;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        /* DESCRIÇÃO VISÍVEL NO MARKETPLACE */
+        .product-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+        .product-footer {
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .product-price {
+            font-size: 1.4rem;
+            color: #fff;
+            font-weight: 800;
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+        .product-price span {
+            font-size: 0.85rem;
+            color: var(--success);
+            font-weight: 600;
+        }
+        /* ==========================================================================
+           10. PERFIL PRO E RANKING (ESTILO HOTMART)
+           ========================================================================== */
+        .profile-cover {
+            height: 260px;
+            border-radius: 20px;
+            background: linear-gradient(to bottom, rgba(3, 7, 18, 0.3), rgba(3, 7, 18, 0.95)),
+                        url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80') center/cover;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            margin-bottom: 0;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+        .profile-avatar-large {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            border: 5px solid var(--bg-base);
+            position: absolute;
+            top: -80px;
+            left: 40px;
+            background-size: cover;
+            background-position: center;
+            background-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            z-index: 5;
+            flex-shrink: 0;
+        }
+        .profile-info-container {
+            position: relative;
+            margin-top: 0;
+            padding-top: 100px;
+            padding-left: 40px;
+            padding-right: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .profile-main-text {
+            flex: 1;
+            margin-left: 170px;
+            min-width: 250px;
+        }
+        .profile-main-text h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            background: linear-gradient(120deg, var(--text-main) 60%, var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            filter: drop-shadow(0 2px 15px var(--primary-glow));
+        }
+        .profile-main-text p {
+            max-width: 500px;
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+        .profile-stats-bar {
+            display: flex;
+            gap: 30px;
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 2.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: var(--shadow-md);
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-item span {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fff;
+        }
+        .stat-item small {
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .ranking-item {
+            display: flex; align-items: center; padding: 1.2rem 2rem;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 0.8rem; border-radius: 12px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .ranking-item:hover {
+            transform: translateX(10px);
+            background: rgba(59, 130, 246, 0.1);
+            border-color: var(--primary);
+        }
+        .ranking-pos { width: 50px; font-size: 1.5rem; font-weight: 900; color: var(--text-muted); }
+        .ranking-pos.gold { color: #FFD700; }
+        .ranking-pos.silver { color: #C0C0C0; }
+        .ranking-pos.bronze { color: #CD7F32; }
+        .ranking-user-info { flex: 1; display: flex; align-items: center; gap: 15px; }
+        .ranking-profit { text-align: right; }
+        .ranking-profit h2 { color: var(--success); font-size: 1.5rem; }
+        /* ==========================================================================
+           11. CHAT / MENSAGENS (ESTILO MESSENGER COMPLETO)
+           ========================================================================== */
+        .chat-container { display: flex; height: calc(100vh - 180px); border-radius: var(--radius-lg); overflow: hidden; border: var(--glass-border); box-shadow: var(--shadow-lg); background: rgba(15, 23, 42, 0.4); }
+        .chat-sidebar { width: 340px; background: rgba(15, 23, 42, 0.95); border-right: var(--glass-border); display: flex; flex-direction: column; }
+        .chat-list { flex: 1; overflow-y: auto; padding: 0.5rem; }
+        .chat-contact { padding: 1rem; margin-bottom: 0.5rem; border-radius: var(--radius-md); display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: var(--transition-fast); position: relative; }
+        .chat-contact:hover, .chat-contact.active { background: rgba(59, 130, 246, 0.15); }
+        .chat-contact-avatar { position: relative; }
+        .online-dot { position: absolute; bottom: 0; right: 0; width: 14px; height: 14px; background: var(--success); border-radius: 50%; border: 3px solid var(--bg-base); }
+        .chat-main { flex: 1; display: flex; flex-direction: column; background: rgba(3, 7, 18, 0.8); position: relative; }
+        .chat-header { padding: 1rem 2rem; background: rgba(15, 23, 42, 0.95); border-bottom: var(--glass-border); display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); z-index: 10;}
+        .chat-messages { flex: 1; padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.8rem; scroll-behavior: smooth; }
+        
+        /* BOLHAS ESTILO MESSENGER */
+        .msg-bubble {
+            max-width: 75%;
+            padding: 10px 16px;
+            font-size: 0.95rem;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .msg-bubble.received {
+            background: #303030;
+            color: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        .msg-bubble.sent {
+            background: linear-gradient(135deg, #0084ff, #00c6ff);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        .msg-bubble.system {
+            align-self: center;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-radius: 10px;
+            padding: 4px 12px;
+            margin: 10px 0;
+        }
+        .msg-time {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-top: 4px;
+            text-align: right;
+            align-self: flex-end;
+        }
+        /* MENU DE CONTEXTO MESSENGER */
+        .msg-menu {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+            color: rgba(255,255,255,0.8);
+        }
+        .msg-bubble.sent:hover .msg-menu { opacity: 1; }
+        .msg-context-menu {
+            position: absolute;
+            background: rgba(15,23,42,0.98);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+            z-index: 100;
+            padding: 6px 0;
+            min-width: 160px;
+            display: none;
+        }
+        .msg-context-menu button {
+            width: 100%;
+            text-align: left;
+            padding: 10px 16px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .msg-context-menu button:hover { background: rgba(59,130,246,0.3); }
+        
+        .pdf-attachment {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 12px;
+            text-decoration: none !important;
+            color: white !important;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .pdf-attachment i { font-size: 2rem; color: #ff4444; }
+        .msg-bubble img { max-width: 100%; border-radius: 1rem; margin-top: 0.5rem; cursor: pointer; transition: transform 0.2s; }
+        .msg-bubble img:hover { transform: scale(1.02); }
+        .msg-bubble audio { height: 40px; margin-top: 0.5rem; border-radius: 2rem; outline: none; }
+        .chat-input-area { padding: 1rem 2rem; background: rgba(15, 23, 42, 0.95); border-top: var(--glass-border); display: flex; gap: 0.8rem; align-items: center; z-index: 10; }
+        .chat-action-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.3rem; cursor: pointer; padding: 0.5rem; transition: var(--transition-fast); display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 40px; height: 40px; }
+        .chat-action-btn:hover { color: var(--primary); background: rgba(59,130,246,0.1); }
+        .chat-action-btn.recording { color: var(--danger); animation: pulseRecord 1s infinite; background: rgba(239, 68, 68, 0.1); }
+        @keyframes pulseRecord { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        /* ==========================================================================
+           12. UPLOAD ZONES & CUSTOM FORMS
+           ========================================================================== */
+        .file-drop-area {
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: var(--radius-lg);
+            padding: 3rem 2rem;
+            text-align: center; cursor: pointer;
+            transition: var(--transition-normal);
+            background: rgba(0,0,0,0.2); position: relative; overflow: hidden;
+        }
+        .file-drop-area:hover, .file-drop-area.dragover { border-color: var(--primary); background: rgba(59, 130, 246, 0.05); }
+        .preview-container {
+            margin-top: 1rem; border-radius: var(--radius-md); overflow: hidden;
+            max-height: 250px; display: flex; justify-content: center; background: #000; display: none; border: var(--glass-border);
+        }
+        .preview-container img { max-width: 100%; object-fit: contain; }
+        .avatar-upload-wrapper { display: flex; align-items: center; gap: 2rem; margin-bottom: 1rem; }
+        .avatar-preview-box {
+            width: 100px; height: 100px; border-radius: 50%; border: 3px dashed var(--primary);
+            background-size: cover; background-position: center; background-color: var(--glass-highlight);
+            display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;
+        }
+        /* ==========================================================================
+           13. MODAIS E TOAST NOTIFICATIONS
+           ========================================================================== */
+        #toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 9999; display: flex; flex-direction: column; gap: 1rem; }
+        .toast {
+            min-width: 300px; background: var(--glass-bg); backdrop-filter: blur(10px);
+            border: var(--glass-border); border-left: 4px solid var(--info);
+            padding: 1.2rem; border-radius: var(--radius-md); box-shadow: var(--shadow-lg);
+            display: flex; align-items: center; gap: 1rem;
+            animation: slideInRight 0.3s ease forwards;
+        }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            display: flex; align-items: center; justify-content: center; z-index: 1000;
+            opacity: 0; visibility: hidden; transition: var(--transition-normal);
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content {
+            background: var(--glass-bg); border: var(--glass-border);
+            padding: 2.5rem; border-radius: var(--radius-lg); width: 90%; max-width: 500px;
+            transform: scale(0.9); transition: var(--transition-normal); box-shadow: var(--shadow-lg);
+        }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        #auth-overlay { z-index: 2000; background: rgba(3, 7, 18, 0.95); backdrop-filter: blur(20px); }
+        .auth-box { border-top: 4px solid var(--primary); padding: 3.5rem; max-width: 450px; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
     </style>
 </head>
 <body>
-    <!-- Cole aqui TODO o seu HTML original (sidebar, topbar, views, etc.) -->
-    <!-- O importante é que o <script> no final esteja adaptado -->
+    <!-- Fundo Interativo -->
+    <canvas id="bg-canvas"></canvas>
+   
+    <div id="app-container">
+        <!-- Tela de Autenticação -->
+        <div id="auth-overlay" class="modal-overlay active">
+            <div class="auth-box glass-panel">
+                <div style="text-align: center; margin-bottom: 2.5rem;">
+                    <i class="fas fa-network-wired" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem; filter: drop-shadow(0 0 10px var(--primary-glow));"></i>
+                    <h2 id="auth-title" style="font-size: 2.2rem;">Bem-vindo ao Breakthe<span style="color: var(--primary);">system</span></h2>
+                    <p id="auth-subtitle" style="margin-top: 0.5rem; font-size: 0.9rem;">Conecte-se à rede primária.</p>
+                </div>
+                <form id="auth-form">
+                    <div class="form-group" id="name-form-group">
+                        <label class="form-label">Identificação (Nome)</label>
+                        <div style="position:relative;">
+                            <i class="fas fa-user" style="position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:var(--text-muted);"></i>
+                            <input type="text" id="auth-name" class="form-control" style="padding-left:2.8rem;" placeholder="Seu nome no sistema">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">E-mail de Acesso</label>
+                        <div style="position:relative;">
+                            <i class="fas fa-envelope" style="position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:var(--text-muted);"></i>
+                            <input type="email" id="auth-email" class="form-control" style="padding-left:2.8rem;" placeholder="usuario@dominio.com" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Código de Segurança</label>
+                        <div style="position:relative;">
+                            <i class="fas fa-lock" style="position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:var(--text-muted);"></i>
+                            <input type="password" id="auth-pass" class="form-control" style="padding-left:2.8rem;" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <button type="submit" id="auth-submit-btn" class="btn btn-primary" style="width: 100%; padding: 1.2rem; font-size: 1.1rem; margin-top: 1.5rem;">
+                        INICIALIZAR SESSÃO <i class="fas fa-arrow-right" style="margin-left:0.5rem;"></i>
+                    </button>
+                    <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;">
+                        <a href="#" id="toggle-auth-mode" style="color: var(--secondary);">Não tem uma conta? Crie uma!</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+        <!-- Menu Lateral (Sidebar) -->
+        <aside id="sidebar">
+            <div class="sidebar-header">
+                <h2>Breakthe<span>system</span></h2>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-item active" data-target="view-dashboard">
+                    <i class="fas fa-chart-line"></i> <span>Dashboard Central</span>
+                </div>
+                <div class="nav-item" data-target="view-marketplace">
+                    <i class="fas fa-store"></i> <span>Marketplace</span>
+                </div>
+                <div class="nav-item" data-target="view-ranking">
+                    <i class="fas fa-trophy"></i> <span>Ranking Global</span>
+                </div>
+                <div class="nav-item" data-target="view-profile" id="nav-meu-perfil">
+                    <i class="fas fa-id-badge"></i> <span>Meu Perfil</span>
+                </div>
+                <div class="nav-item" data-target="view-create-product">
+                    <i class="fas fa-cloud-upload-alt"></i> <span>Publicar Produto</span>
+                </div>
+                <div class="nav-item" data-target="view-chat">
+                    <i class="fas fa-comments"></i> <span>Transmissões</span>
+                </div>
+                <div class="nav-item" data-target="view-settings">
+                    <i class="fas fa-cog"></i> <span>Configurações</span>
+                </div>
+            </nav>
+            <div style="padding: 2rem; border-top: var(--glass-border);">
+                <div class="user-info" style="margin-bottom: 1rem; background: rgba(0,0,0,0.2); cursor:default;">
+                    <div class="avatar online" id="sidebar-avatar">U</div>
+                    <div style="overflow: hidden;">
+                        <strong id="sidebar-name" style="display:block; white-space: nowrap; text-overflow: ellipsis; font-size: 0.9rem;">Usuário</strong>
+                        <small style="color:var(--success); font-size: 0.75rem;">Conectado</small>
+                    </div>
+                </div>
+                <button onclick="app.logout()" class="btn btn-danger" style="width: 100%;">
+                    <i class="fas fa-sign-out-alt"></i> Desconectar
+                </button>
+            </div>
+        </aside>
+        <!-- Área Principal -->
+        <main id="main-content">
+            <!-- Barra Superior -->
+            <header id="topbar">
+                <div>
+                    <h3 id="current-view-title" style="font-size: 1.5rem; font-weight: 400; color: var(--text-main);">Dashboard</h3>
+                    <p id="current-view-subtitle" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">Visão geral das suas operações e carteira.</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 2rem;">
+                    <div style="text-align: right;">
+                        <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Saldo Disponível</span>
+                        <div id="header-balance" style="font-size: 1.5rem; font-weight: 800; color: var(--secondary);">Db 0.00</div>
+                    </div>
+                    <div id="header-avatar" class="avatar" onclick="app.viewUserProfile(app.currentUser.id)" style="cursor:pointer; border-color: var(--primary);">U</div>
+                </div>
+            </header>
+            <!-- ================= VIEWS ================= -->
+           
+            <!-- 1. Dashboard -->
+            <section id="view-dashboard" class="view-section active">
+                <div class="grid-3" style="margin-bottom: 2.5rem;">
+                    <div class="card glass-panel stat-card">
+                        <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+                        <div class="stat-info">
+                            <h4>Receita Total</h4>
+                            <h2 id="dash-revenue"><span>Db</span> 0.00</h2>
+                        </div>
+                    </div>
+                    <div class="card glass-panel stat-card">
+                        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success); border-color: rgba(16,185,129,0.3);"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-info">
+                            <h4>Vendas Processadas</h4>
+                            <h2 id="dash-sales-count">0</h2>
+                        </div>
+                    </div>
+                    <div class="card glass-panel stat-card">
+                        <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: var(--accent); border-color: rgba(139,92,246,0.3);"><i class="fas fa-box-open"></i></div>
+                        <div class="stat-info">
+                            <h4>Meus Produtos</h4>
+                            <h2 id="dash-products-count">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-bottom: 2.5rem;">
+                    <div class="card glass-panel">
+                        <h3 style="margin-bottom: 1.5rem; display:flex; justify-content:space-between;">
+                            <span><i class="fas fa-chart-area"></i> Fluxo Financeiro</span>
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="financeChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card glass-panel" style="display: flex; flex-direction: column;">
+                        <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-bolt"></i> Últimas Movimentações</h3>
+                        <div style="flex: 1; overflow-y: auto; max-height: 300px; padding-right: 1rem;">
+                            <table style="width: 100%;">
+                                <tbody id="transactions-list-mini"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- 2. Marketplace -->
+            <section id="view-marketplace" class="view-section">
+                <div class="glass-panel" style="padding: 1.5rem 2rem; border-radius: var(--radius-lg); margin-bottom: 2.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px; position: relative;">
+                        <i class="fas fa-search" style="position: absolute; left: 1.2rem; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                        <input type="text" id="search-marketplace" class="form-control" placeholder="Buscar softwares, designs, e-books..." style="padding-left: 3rem;">
+                    </div>
+                    <select id="filter-marketplace" class="form-control" style="width: auto; min-width: 200px;">
+                        <option value="all">Todas as Categorias</option>
+                        <option value="Software">Software & Scripts</option>
+                        <option value="Design">Design & UI Kits</option>
+                        <option value="E-book">E-books & Cursos</option>
+                        <option value="Arte Digital">Arte Digital & NFTs</option>
+                    </select>
+                </div>
+                <div id="marketplace-grid" class="grid-5">
+                    <!-- Produtos via JS -->
+                </div>
+            </section>
+            <!-- 3. Ranking Global -->
+            <section id="view-ranking" class="view-section">
+                <div class="card glass-panel" style="max-width: 1000px; margin: 0 auto;">
+                    <div style="text-align: center; margin-bottom: 3rem;">
+                        <i class="fas fa-crown" style="font-size: 3rem; color: #FBBF24; margin-bottom: 1rem; filter: drop-shadow(0 0 15px rgba(251,191,36,0.5));"></i>
+                        <h2 style="font-size: 2.5rem;">Elite do Sistema</h2>
+                        <p style="margin-top: 0.5rem; font-size: 1.1rem;">Classificação gerada com base no lucro acumulado na plataforma.</p>
+                    </div>
+                    <div id="ranking-list" style="display: flex; flex-direction: column;">
+                        <!-- JS Preenche -->
+                    </div>
+                </div>
+            </section>
+            <!-- 4. Perfil -->
+            <section id="view-profile" class="view-section">
+                <!-- Construído Dinamicamente no JS -->
+            </section>
+            <!-- 5. Lançar Produto -->
+            <section id="view-create-product" class="view-section">
+                <div class="card glass-panel" style="max-width: 900px; margin: 0 auto;">
+                    <h2 style="margin-bottom: 2rem;"><i class="fas fa-rocket" style="color: var(--primary);"></i> Lançar Nova Criação</h2>
+                    <form id="form-create-product">
+                        <div class="form-group">
+                            <label class="form-label">Título do Produto</label>
+                            <input type="text" id="prod-title" class="form-control" placeholder="Ex: Sistema de Gestão Escolar (Código Fonte)" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Descrição Completa</label>
+                            <textarea id="prod-desc" class="form-control" rows="6" placeholder="Explique as funcionalidades, tecnologias utilizadas e o que o cliente receberá..." required></textarea>
+                        </div>
+                        <div class="grid-2" style="gap: 1.5rem; margin-bottom: 1.5rem;">
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label">Preço (em Dobras - Db)</label>
+                                <div style="position:relative;">
+                                    <span style="position:absolute; left:1rem; top:50%; transform:translateY(-50%); font-weight:bold; color:var(--text-muted);">Db</span>
+                                    <input type="number" id="prod-price" class="form-control" style="padding-left:3rem;" step="0.01" min="0.1" placeholder="0.00" required>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label">Categoria de Mercado</label>
+                                <select id="prod-category" class="form-control" required>
+                                    <option value="" disabled selected>Selecione uma categoria...</option>
+                                    <option value="Software">Software & Códigos</option>
+                                    <option value="Design">Design & Templates</option>
+                                    <option value="Arte Digital">Arte Digital & 3D</option>
+                                    <option value="E-book">E-books & Documentos</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label"><i class="fas fa-image"></i> Capa do Produto (Obrigatório)</label>
+                            <div id="drop-zone-img" class="file-drop-area">
+                                <i class="fas fa-camera" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                                <h4>Arraste a imagem ou clique para selecionar</h4>
+                                <p style="font-size: 0.85rem; margin-top: 0.5rem;">JPG, PNG, WEBP</p>
+                                <input type="file" id="prod-image-file" accept="image/*" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;" required>
+                            </div>
+                            <div id="prod-img-preview-container" class="preview-container">
+                                <img id="prod-img-preview" src="" alt="Preview">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-file-archive"></i> Arquivo Entregável (Carga Digital)</label>
+                            <div class="file-drop-area" style="border-color: rgba(16, 185, 129, 0.3);">
+                                <i class="fas fa-box" style="font-size: 3rem; color: var(--success); margin-bottom: 1rem;"></i>
+                                <h4>Anexe o arquivo ZIP, PDF ou Código</h4>
+                                <p style="font-size: 0.85rem; margin-top: 0.5rem;">Será liberado ao comprador após o pagamento.</p>
+                                <input type="file" id="prod-file" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1.2rem; font-size: 1.1rem; margin-top: 1rem;">
+                            <i class="fas fa-globe"></i> Publicar no Universo Breakthesystem
+                        </button>
+                    </form>
+                </div>
+            </section>
+            <!-- 6. Chat (Agora estilo Messenger completo) -->
+            <section id="view-chat" class="view-section">
+                <div class="chat-container">
+                    <div class="chat-sidebar">
+                        <div style="padding: 1.5rem; border-bottom: var(--glass-border); display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="font-size: 1.2rem; font-weight: 700;">Mensagens</h3>
+                            <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: var(--primary);">Ativos</span>
+                        </div>
+                        <div id="chat-list-container" class="chat-list"></div>
+                    </div>
+                    <div id="chat-main-area" class="chat-main">
+                        <div id="chat-empty-state" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color: var(--text-muted);">
+                            <div style="width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                                <i class="fas fa-paper-plane" style="font-size: 3rem; color: var(--primary); transform: translateX(-5px);"></i>
+                            </div>
+                            <h2 style="color: white; margin-bottom: 0.5rem;">Suas Transmissões</h2>
+                            <p>Selecione um contato para iniciar o diálogo.</p>
+                        </div>
+                        <div id="chat-active-state" style="display:none; flex-direction:column; height:100%;">
+                            <div class="chat-header">
+                                <div style="display:flex; align-items:center; gap:1rem;">
+                                    <div id="chat-active-avatar" class="avatar" style="width: 45px; height: 45px;">?</div>
+                                    <div>
+                                        <h3 id="chat-active-name" style="font-size: 1.15rem; font-weight: 600;">Comprador</h3>
+                                        <small style="color:var(--success); display: flex; align-items: center; gap: 5px;"><div style="width:8px; height:8px; background:var(--success); border-radius:50%;"></div> Online agora</small>
+                                    </div>
+                                </div>
+                                <div id="chat-tx-status" class="badge" style="background: var(--warning); padding: 0.5rem 1rem; font-size: 0.8rem;">Aguardando</div>
+                            </div>
+                            <div id="chat-messages-container" class="chat-messages"></div>
+                            <div class="chat-input-area">
+                                <button id="btn-send-product" class="btn btn-success" style="display:none; padding: 0.8rem 1.2rem; border-radius: 20px;" title="Liberar Carga"><i class="fas fa-box-open"></i> Entregar</button>
+                                <input type="file" id="chat-img-upload" accept="image/*" style="display:none;">
+                                <button id="btn-attach-img" class="chat-action-btn" title="Enviar Foto"><i class="fas fa-image"></i></button>
+                                <button id="btn-record-audio" class="chat-action-btn" title="Gravar Áudio"><i class="fas fa-microphone"></i></button>
+                                <input type="text" id="chat-input-text" class="form-control" placeholder="Mensagem..." style="border-radius: 30px; flex: 1; padding: 1rem 1.5rem; background: rgba(255,255,255,0.05);">
+                                <button id="btn-send-msg" class="btn btn-primary" style="padding: 1rem; border-radius: 50%; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);"><i class="fas fa-paper-plane" style="transform: translateX(-1px);"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Menu de contexto do Messenger -->
+                <div id="msg-context-menu" class="msg-context-menu">
+                    <button onclick="app.editMessage()">✏️ Editar</button>
+                    <button onclick="app.deleteMessage()">🗑️ Eliminar</button>
+                    <button onclick="app.forwardMessage()">↪️ Reencaminhar</button>
+                    <button onclick="app.copyMessage()">📋 Copiar</button>
+                </div>
+            </section>
+            <!-- 7. Configurações -->
+            <section id="view-settings" class="view-section">
+                <div class="grid-2">
+                    <div class="card glass-panel">
+                        <h3 style="border-bottom: var(--glass-border); padding-bottom: 1rem; margin-bottom: 2rem;"><i class="fas fa-user-edit"></i> Identidade Profissional</h3>
+                        <form id="form-settings">
+                            <div class="avatar-upload-wrapper">
+                                <div id="settings-avatar-preview-box" class="avatar-preview-box">
+                                    <span style="font-size:2rem; color:var(--text-muted);">U</span>
+                                </div>
+                                <div style="flex:1;">
+                                    <label class="btn btn-outline" style="cursor:pointer; display:inline-block; margin-bottom:0.5rem;">
+                                        <i class="fas fa-camera"></i> Alterar Foto Real
+                                        <input type="file" id="set-avatar-file" accept="image/*" style="display:none;">
+                                    </label>
+                                    <p style="font-size:0.8rem;">O upload processa e compacta a imagem localmente usando Base64.</p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nome de Exibição Público</label>
+                                <input type="text" id="set-name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Resumo Biográfico / Especialidades</label>
+                                <textarea id="set-bio" class="form-control" rows="4" placeholder="Fale sobre suas habilidades..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-save"></i> Gravar Modificações</button>
+                        </form>
+                    </div>
+                    <div class="card glass-panel">
+                        <h3 style="border-bottom: var(--glass-border); padding-bottom: 1rem; margin-bottom: 2rem;"><i class="fas fa-server"></i> Núcleo de Dados</h3>
+                        <div style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+                            <h4 style="margin-bottom: 0.5rem; color: var(--secondary);">Exportação Financeira</h4>
+                            <p style="font-size: 0.9rem; margin-bottom: 1rem;">Gere uma planilha (.CSV) com todo o histórico.</p>
+                            <button onclick="app.exportCSV()" class="btn btn-secondary" style="width:100%;"><i class="fas fa-file-csv"></i> Download CSV</button>
+                        </div>
+                        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 1.5rem; border-radius: var(--radius-md);">
+                            <h4 style="margin-bottom: 0.5rem; color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> Zona de Risco</h4>
+                            <p style="font-size: 0.9rem; margin-bottom: 1rem;">Deletar permanentemente a base de dados.</p>
+                            <button onclick="app.factoryReset()" class="btn btn-danger" style="width:100%;"><i class="fas fa-trash-alt"></i> Formatar Sistema</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <div id="toast-container"></div>
+    <div id="custom-confirm-modal" class="modal-overlay">
+        <div class="modal-content text-center">
+            <i class="fas fa-question-circle" style="font-size: 4rem; color: var(--warning); margin-bottom: 1.5rem;"></i>
+            <h2 id="confirm-title" style="margin-bottom: 1rem;">Confirmação</h2>
+            <p id="confirm-msg" style="margin-bottom: 2rem; font-size: 1.1rem;"></p>
+            <div style="display:flex; gap: 1rem; justify-content:center;">
+                <button id="confirm-btn-cancel" class="btn btn-secondary" style="flex:1;">Cancelar</button>
+                <button id="confirm-btn-ok" class="btn btn-primary" style="flex:1;">Confirmar</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // ==================== CONEXÃO COM SERVIDOR ====================
-        const app = {
-            currentUser: null,
-            db: { users: [], products: [], transactions: [], chats: [] },
-
-            async loadData() {
-                try {
-                    const res = await fetch('/api/db');
-                    this.db = await res.json();
-                    console.log("✅ Dados carregados do servidor");
-                } catch(e) {
-                    console.warn("⚠️ Servidor offline");
-                }
+        /* ==========================================================================
+           CORE LOGIC & UTILITIES
+           ========================================================================== */
+        const UI = {
+            toast: function(msg, type = 'info') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                let icon = 'fa-info-circle';
+                if(type === 'success') icon = 'fa-check-circle';
+                if(type === 'error') icon = 'fa-times-circle';
+                if(type === 'warning') icon = 'fa-exclamation-triangle';
+                toast.innerHTML = `<i class="fas ${icon}" style="font-size:1.5rem;"></i> <div>${msg}</div>`;
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.animation = 'fadeOut 0.3s ease forwards';
+                    setTimeout(() => toast.remove(), 300);
+                }, 4000);
             },
-
-            async saveData() {
-                try {
-                    await fetch('/api/db', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify(this.db)
-                    });
-                } catch(e) {}
-            },
-
-            async init() {
-                await this.loadData();
-                // Aqui você pode chamar o resto do seu código original
-                console.log("App iniciado");
+            confirm: function(title, msg, callback) {
+                const modal = document.getElementById('custom-confirm-modal');
+                document.getElementById('confirm-title').innerText = title;
+                document.getElementById('confirm-msg').innerText = msg;
+                modal.classList.add('active');
+                document.getElementById('confirm-btn-ok').onclick = () => { modal.classList.remove('active'); callback(true); };
+                document.getElementById('confirm-btn-cancel').onclick = () => { modal.classList.remove('active'); callback(false); };
             }
         };
 
+        const ImageTools = {
+            resizeBase64: function(file, maxWidth, maxHeight, callback) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let w = img.width; let h = img.height;
+                        if (w > h) { if (w > maxWidth) { h *= maxWidth / w; w = maxWidth; } }
+                        else { if (h > maxHeight) { w *= maxHeight / h; h = maxHeight; } }
+                        canvas.width = w; canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        callback(canvas.toDataURL('image/jpeg', 0.8));
+                    }
+                    img.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        };
+
+        /* ==========================================================================
+           APLICAÇÃO PRINCIPAL BREAKTHESYSTEM (ATUALIZADA)
+           ========================================================================== */
+        const app = {
+            currentUser: null,
+            viewingProfileId: null,
+            tempAvatarBase64: null,
+            tempProductImageBase64: null,
+            chartInstance: null,
+            authMode: 'login',
+            activeChatId: null,
+            contextMessageId: null,   // Para menu de contexto
+           
+            db: { users: [], products: [], transactions: [], chats: [] },
+           
+            init: function() {
+                this.loadData();
+                this.setupEvents();
+                this.initBackground();
+                this.checkAuth();
+                this.updateAuthFormUI();
+            },
+           
+            loadData: function() {
+                const stored = localStorage.getItem('bts_database_v5');
+                if (stored) {
+                    try {
+                        const parsedDB = JSON.parse(stored);
+                        this.db.users = parsedDB.users || [];
+                        this.db.products = parsedDB.products || [];
+                        this.db.transactions = parsedDB.transactions || [];
+                        this.db.chats = parsedDB.chats || [];
+                    } catch(e) { console.error("Corrupt DB", e); }
+                }
+            },
+           
+            saveData: function() {
+                setTimeout(() => {
+                    try {
+                        localStorage.setItem('bts_database_v5', JSON.stringify(this.db));
+                    } catch (e) {
+                        console.error("Erro ao salvar: Banco de dados muito grande.");
+                        UI.toast("Memória cheia! Tente apagar mensagens antigas.", "error");
+                    }
+                }, 0);
+            },
+           
+            // ENVIO INSTANTÂNEO DE MENSAGENS (com ID único)
+            sendChatMessage: function(type, content, fileName = '') {
+                if(!content || !this.activeChatId) return;
+               
+                const chat = this.db.chats.find(c => c.id === this.activeChatId);
+                const newMessage = {
+                    id: 'msg_' + Date.now(),
+                    sender: this.currentUser.id,
+                    type: type,
+                    content: content,
+                    fileName: fileName,
+                    time: new Date().toISOString()
+                };
+                chat.messages.push(newMessage);
+                this.saveData();
+                this.renderChatMessages();   // Atualiza imediatamente
+                this.renderChatList();       // Atualiza sidebar
+            },
+           
+            checkAuth: function() {
+                const session = localStorage.getItem('bts_session_v5');
+                if (session) {
+                    const parsed = JSON.parse(session);
+                    const freshUser = this.db.users.find(u => u.id === parsed.id);
+                    if(freshUser) {
+                        this.currentUser = freshUser;
+                        document.getElementById('auth-overlay').classList.remove('active');
+                        this.updateGlobalUI();
+                        this.switchView('view-dashboard');
+                        UI.toast(`Bem-vindo, ${this.currentUser.name}`, "success");
+                    } else { this.logout(); }
+                }
+            },
+           
+            updateAuthFormUI: function() {
+                const titleEl = document.getElementById('auth-title');
+                const subtitleEl = document.getElementById('auth-subtitle');
+                const nameFormGroup = document.getElementById('name-form-group');
+                const authNameInput = document.getElementById('auth-name');
+                const submitBtn = document.getElementById('auth-submit-btn');
+                const toggleLink = document.getElementById('toggle-auth-mode');
+               
+                if (this.authMode === 'login') {
+                    titleEl.innerText = "Bem-vindo ao Breakthesystem"; subtitleEl.innerText = "Conecte-se à rede primária.";
+                    nameFormGroup.style.display = 'none'; authNameInput.removeAttribute('required');
+                    submitBtn.innerHTML = 'INICIALIZAR SESSÃO <i class="fas fa-arrow-right" style="margin-left:0.5rem;"></i>';
+                    toggleLink.innerHTML = 'Não tem uma conta? Crie uma!';
+                } else {
+                    titleEl.innerText = "Crie sua Conta"; subtitleEl.innerText = "Junte-se à rede e comece a operar.";
+                    nameFormGroup.style.display = 'block'; authNameInput.setAttribute('required', 'required');
+                    submitBtn.innerHTML = 'CRIAR CONTA <i class="fas fa-user-plus" style="margin-left:0.5rem;"></i>';
+                    toggleLink.innerHTML = 'Já tem uma conta? Faça Login!';
+                }
+            },
+           
+            toggleAuthMode: function() {
+                this.authMode = (this.authMode === 'login') ? 'register' : 'login';
+                this.updateAuthFormUI();
+                document.getElementById('auth-form').reset();
+            },
+           
+            processLogin: function(name, email, pass) {
+                let user = this.db.users.find(u => u.email === email);
+                if (this.authMode === 'register') {
+                    if (user) { UI.toast("E-mail já registrado.", "error"); return; }
+                    if(!name) { UI.toast("O nome é obrigatório!", "error"); return; }
+                   
+                    user = {
+                        id: 'usr_' + Date.now(), name: name, email: email, pass: pass, bio: '', avatar: null,
+                        sales: 0, balance: 0, joinedAt: new Date().toISOString(),
+                        affiliatedProducts: [], following: []
+                    };
+                    this.db.users.push(user);
+                    this.saveData();
+                    UI.toast("Conta criada com sucesso!", "success");
+                } else {
+                    if (!user || user.pass !== pass) { UI.toast("Credenciais inválidas.", "error"); return; }
+                }
+               
+                this.currentUser = user;
+                localStorage.setItem('bts_session_v5', JSON.stringify(user));
+                document.getElementById('auth-overlay').classList.remove('active');
+                document.getElementById('auth-form').reset();
+                this.updateGlobalUI();
+                this.switchView('view-dashboard');
+            },
+           
+            logout: function() {
+                this.currentUser = null;
+                localStorage.removeItem('bts_session_v5');
+                document.getElementById('auth-overlay').classList.add('active');
+                this.authMode = 'login'; this.updateAuthFormUI();
+            },
+           
+            saveUserContext: function() {
+                const idx = this.db.users.findIndex(u => u.id === this.currentUser.id);
+                if(idx > -1) this.db.users[idx] = this.currentUser;
+                localStorage.setItem('bts_session_v5', JSON.stringify(this.currentUser));
+                this.saveData();
+            },
+           
+            updateGlobalUI: function() {
+                const u = this.currentUser;
+                document.getElementById('sidebar-name').innerText = u.name;
+                document.getElementById('header-balance').innerText = `Db ${(u.balance || 0).toFixed(2)}`;
+                this.setAvatar('sidebar-avatar', u.avatar, u.name);
+                this.setAvatar('header-avatar', u.avatar, u.name);
+                document.getElementById('set-name').value = u.name;
+                document.getElementById('set-bio').value = u.bio || '';
+                if(u.avatar) {
+                    document.getElementById('settings-avatar-preview-box').style.backgroundImage = `url('${u.avatar}')`;
+                    document.getElementById('settings-avatar-preview-box').innerHTML = '';
+                }
+            },
+           
+            setAvatar: function(id, base64, name) {
+                const el = document.getElementById(id);
+                if(!el) return;
+                if(base64) { el.style.backgroundImage = `url('${base64}')`; el.innerText = ''; }
+                else { el.style.backgroundImage = 'none'; el.innerText = name ? name.charAt(0).toUpperCase() : 'U'; }
+            },
+           
+            switchView: function(viewId) {
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                const targetNav = document.querySelector(`.nav-item[data-target="${viewId}"]`);
+                if(targetNav) targetNav.classList.add('active');
+               
+                const titles = {
+                    'view-dashboard': { t: 'Dashboard Central', s: 'Visão geral das suas operações e carteira.' },
+                    'view-marketplace': { t: 'Marketplace', s: 'Explore criações e códigos de outros usuários.' },
+                    'view-ranking': { t: 'Ranking Global', s: 'Baseado no lucro acumulado.' },
+                    'view-profile': { t: 'Perfil', s: 'Visualizando identidade e vitrine.' },
+                    'view-create-product': { t: 'Lançar Produto', s: 'Adicione valor à rede e fature.' },
+                    'view-chat': { t: 'Transmissões', s: 'Comunicação direta com parceiros.' },
+                    'view-settings': { t: 'Configurações', s: 'Gerencie seu perfil e dados locais.' }
+                };
+               
+                document.getElementById('current-view-title').innerText = titles[viewId].t;
+                document.getElementById('current-view-subtitle').innerText = titles[viewId].s;
+                document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+                document.getElementById(viewId).classList.add('active');
+               
+                if(viewId === 'view-dashboard') this.renderDashboard();
+                if(viewId === 'view-marketplace') this.renderMarketplace();
+                if(viewId === 'view-profile') this.renderProfile();
+                if(viewId === 'view-ranking') this.renderRanking();
+                if(viewId === 'view-chat') {
+                    document.getElementById('chat-empty-state').style.display = 'flex';
+                    document.getElementById('chat-active-state').style.display = 'none';
+                    this.renderChatList();
+                }
+            },
+           
+            viewUserProfile: function(userId) {
+                this.viewingProfileId = userId;
+                this.switchView('view-profile');
+            },
+           
+            toggleAffiliate: function(productId) {
+                if (!this.currentUser.affiliatedProducts) this.currentUser.affiliatedProducts = [];
+                const index = this.currentUser.affiliatedProducts.indexOf(productId);
+                if (index > -1) {
+                    this.currentUser.affiliatedProducts.splice(index, 1);
+                    UI.toast("Você se desafiliou deste produto.", "info");
+                } else {
+                    this.currentUser.affiliatedProducts.push(productId);
+                    UI.toast("Você agora é afiliado deste produto!", "success");
+                }
+                this.saveUserContext();
+                this.renderMarketplace();
+            },
+           
+            toggleFollow: function(userIdToFollow, userName) {
+                if (!this.currentUser.following) this.currentUser.following = [];
+                const index = this.currentUser.following.indexOf(userIdToFollow);
+                if (index > -1) {
+                    this.currentUser.following.splice(index, 1);
+                    UI.toast(`Você deixou de seguir ${userName}.`, "info");
+                } else {
+                    this.currentUser.following.push(userIdToFollow);
+                    UI.toast(`Agora você está seguindo ${userName}!`, "success");
+                }
+                this.saveUserContext();
+                this.renderProfile();
+            },
+           
+            createProduct: function(title, desc, price, cat) {
+                if(!this.tempProductImageBase64) { UI.toast("A imagem de capa é obrigatória!", "error"); return; }
+                const prod = {
+                    id: 'prd_' + Date.now(), sellerId: this.currentUser.id,
+                    title: title, desc: desc, price: parseFloat(price), category: cat,
+                    image: this.tempProductImageBase64, createdAt: new Date().toISOString()
+                };
+                this.db.products.push(prod); this.saveData();
+                document.getElementById('form-create-product').reset();
+                this.tempProductImageBase64 = null;
+                document.getElementById('prod-img-preview-container').style.display = 'none';
+                UI.toast("Produto lançado!", "success");
+                this.switchView('view-marketplace');
+            },
+           
+            // MARKETPLACE COM DESCRIÇÃO VISÍVEL
+            renderMarketplace: function(filter = 'all', search = '') {
+                const grid = document.getElementById('marketplace-grid');
+                grid.innerHTML = '';
+                let items = this.db.products;
+                if(filter !== 'all') items = items.filter(p => p.category === filter);
+                if(search) items = items.filter(p => 
+                    p.title.toLowerCase().includes(search.toLowerCase()) || 
+                    (p.desc && p.desc.toLowerCase().includes(search.toLowerCase()))
+                );
+               
+                if(items.length === 0) {
+                    grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 4rem 0;"><h3 style="color:var(--text-muted);">Nenhum ativo encontrado.</h3></div>`;
+                    return;
+                }
+               
+                items.reverse().forEach(p => {
+                    const seller = this.db.users.find(u => u.id === p.sellerId);
+                    const sName = seller ? seller.name : 'Desconhecido';
+                    const sLetter = (!seller || !seller.avatar) ? sName.charAt(0) : '';
+                    const isMine = p.sellerId === this.currentUser.id;
+                   
+                    let actionButtonsHtml = '';
+                    if (isMine) {
+                        actionButtonsHtml = `<button class="btn btn-secondary" style="width: 100%;" onclick="app.viewUserProfile('${this.currentUser.id}')"><i class="fas fa-eye"></i> Ver Meu</button>`;
+                    } else {
+                        const isAff = this.currentUser.affiliatedProducts && this.currentUser.affiliatedProducts.includes(p.id);
+                        actionButtonsHtml = `
+                            <button class="btn ${isAff ? 'btn-success' : 'btn-outline'}" style="flex:1; padding: 0.6rem;" onclick="app.toggleAffiliate('${p.id}')">
+                                <i class="fas ${isAff ? 'fa-check' : 'fa-handshake'}"></i>
+                            </button>
+                            <button class="btn btn-primary" style="flex:3; padding: 0.6rem;" onclick="app.buyProduct('${p.id}')">
+                                <i class="fas fa-shopping-cart"></i> Adquirir
+                            </button>`;
+                    }
+                   
+                    grid.insertAdjacentHTML('beforeend', `
+                    <div class="card product-card">
+                        <div class="product-img" style="background-image: url('${p.image}');">
+                            <span class="product-badge">${p.category}</span>
+                        </div>
+                        <div class="product-content">
+                            <div class="product-seller" onclick="app.viewUserProfile('${p.sellerId}')">
+                                <div class="seller-avatar" style="display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold; ${seller&&seller.avatar ? `background-image:url('${seller.avatar}')` : ''}">${seller&&seller.avatar?'':sLetter}</div>
+                                <span>${sName}</span>
+                            </div>
+                            <h3 class="product-title">${p.title}</h3>
+                            <p class="product-desc">${p.desc ? p.desc.substring(0, 120) + (p.desc.length > 120 ? '...' : '') : 'Sem descrição disponível.'}</p>
+                            <div class="product-footer">
+                                <div class="product-price"><span>Db</span> ${p.price.toFixed(2)}</div>
+                                <div style="display:flex; gap: 0.5rem; width: 100%;">
+                                    ${actionButtonsHtml}
+                                </div>
+                            </div>
+                        </div>
+                    </div>`);
+                });
+            },
+           
+            buyProduct: function(pId) {
+                const prod = this.db.products.find(p => p.id === pId);
+                if(!prod) return;
+                UI.confirm("Autorização de Compra", `Comprar "${prod.title}" por Db ${prod.price.toFixed(2)}?`, (agreed) => {
+                    if(!agreed) return;
+                    const tx = { id: 'tx_' + Date.now(), pId: prod.id, pTitle: prod.title, buyerId: this.currentUser.id, sellerId: prod.sellerId, amount: prod.price, status: 'Pendente Pagamento', date: new Date().toISOString() };
+                    this.db.transactions.push(tx);
+                    let chat = this.db.chats.find(c => (c.u1 === this.currentUser.id && c.u2 === prod.sellerId) || (c.u2 === this.currentUser.id && c.u1 === prod.sellerId));
+                    if(!chat) { chat = { id: 'ch_' + Date.now(), u1: this.currentUser.id, u2: prod.sellerId, messages: [], txId: tx.id }; this.db.chats.push(chat); } else { chat.txId = tx.id; }
+                    chat.messages.push({ id: 'msg_' + Date.now(), sender: 'system', type: 'text', content: `Aquisição de [${prod.title}] inicializada (Db ${prod.price.toFixed(2)}).`, time: new Date().toISOString() });
+                    this.saveData(); this.activeChatId = chat.id; this.switchView('view-chat'); this.openChat(chat.id); UI.toast("Chat da negociação aberto.", "success");
+                });
+            },
+           
+            renderChatList: function() {
+                const cList = document.getElementById('chat-list-container');
+                cList.innerHTML = '';
+                const myC = this.db.chats.filter(c => c.u1 === this.currentUser.id || c.u2 === this.currentUser.id);
+                myC.forEach(c => {
+                    const otherId = (c.u1 === this.currentUser.id) ? c.u2 : c.u1;
+                    const otherU = this.db.users.find(u => u.id === otherId) || { name: 'Desconhecido', avatar: null };
+                    const lastMsg = c.messages.length ? c.messages[c.messages.length-1] : null;
+                    let lastMsgText = lastMsg ? (lastMsg.type === 'image' ? '📷 Imagem' : (lastMsg.type === 'audio' ? '🎤 Áudio' : lastMsg.content)) : "Nova conversa";
+                   
+                    const div = document.createElement('div');
+                    div.className = `chat-contact ${c.id === this.activeChatId ? 'active' : ''}`;
+                    div.innerHTML = `
+                        <div class="chat-contact-avatar">
+                            <div class="avatar" style="width:48px; height:48px; border:none; ${otherU.avatar ? `background-image:url('${otherU.avatar}')` : ''}">${otherU.avatar?'':otherU.name.charAt(0)}</div>
+                        </div>
+                        <div style="overflow:hidden; flex:1;">
+                            <strong style="color:var(--text-main); display:block; font-size:1rem;">${otherU.name}</strong>
+                            <small style="color:var(--text-muted); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${lastMsgText}</small>
+                        </div>`;
+                    div.onclick = () => this.openChat(c.id);
+                    cList.appendChild(div);
+                });
+            },
+           
+            openChat: function(cId) {
+                this.activeChatId = cId;
+                document.getElementById('chat-empty-state').style.display = 'none';
+                document.getElementById('chat-active-state').style.display = 'flex';
+                this.renderChatList();
+                const chat = this.db.chats.find(c => c.id === cId);
+                const otherId = chat.u1 === this.currentUser.id ? chat.u2 : chat.u1;
+                const otherU = this.db.users.find(u => u.id === otherId) || { name: 'Deletado' };
+                document.getElementById('chat-active-name').innerText = otherU.name;
+                this.setAvatar('chat-active-avatar', otherU.avatar, otherU.name);
+                const tx = this.db.transactions.find(t => t.id === chat.txId);
+                if(tx) {
+                    document.getElementById('chat-tx-status').style.display = 'block';
+                    document.getElementById('chat-tx-status').innerText = tx.status;
+                    document.getElementById('chat-tx-status').style.background = tx.status.includes('Concluído') ? 'var(--success)' : 'var(--warning)';
+                    document.getElementById('btn-send-product').style.display = (tx.sellerId === this.currentUser.id && tx.status === 'Pendente Pagamento') ? 'block' : 'none';
+                }
+                this.renderChatMessages();
+            },
+           
+            // RENDERIZAÇÃO DAS MENSAGENS (ESTILO MESSENGER)
+            renderChatMessages: function() {
+                const container = document.getElementById('chat-messages-container');
+                container.innerHTML = '';
+                const chat = this.db.chats.find(c => c.id === this.activeChatId);
+                if(!chat) return;
+               
+                chat.messages.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = `msg-bubble ${m.sender === 'system' ? 'system' : (m.sender === this.currentUser.id ? 'sent' : 'received')}`;
+                    div.dataset.msgId = m.id;
+                   
+                    let html = '';
+                    if(m.type === 'image') {
+                        html = `<img src="${m.content}" alt="Imagem">`;
+                    } else if(m.type === 'audio') {
+                        html = `<audio controls src="${m.content}"></audio>`;
+                    } else {
+                        html = m.content;
+                    }
+                   
+                    // Adiciona hora
+                    const time = new Date(m.time).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+                    html += `<span class="msg-time">${time}</span>`;
+                   
+                    // Menu de contexto apenas para mensagens enviadas
+                    if(m.sender === this.currentUser.id) {
+                        html += `<div class="msg-menu" onclick="event.stopImmediatePropagation(); app.showContextMenu('${m.id}', event)">⋯</div>`;
+                    }
+                   
+                    div.innerHTML = html;
+                    container.appendChild(div);
+                });
+                container.scrollTop = container.scrollHeight;
+            },
+           
+            // MENU DE CONTEXTO (Eliminar, Editar, Reencaminhar)
+            showContextMenu: function(msgId, e) {
+                e.stopImmediatePropagation();
+                this.contextMessageId = msgId;
+                const menu = document.getElementById('msg-context-menu');
+                menu.style.display = 'block';
+                menu.style.left = (e.pageX + 10) + 'px';
+                menu.style.top = (e.pageY + 10) + 'px';
+               
+                // Fecha ao clicar fora
+                const closeMenu = (ev) => {
+                    if(!menu.contains(ev.target)) {
+                        menu.style.display = 'none';
+                        document.removeEventListener('click', closeMenu);
+                    }
+                };
+                document.addEventListener('click', closeMenu);
+            },
+           
+            editMessage: function() {
+                const menu = document.getElementById('msg-context-menu');
+                menu.style.display = 'none';
+                const chat = this.db.chats.find(c => c.id === this.activeChatId);
+                const msg = chat.messages.find(m => m.id === this.contextMessageId);
+                if(!msg || msg.sender !== this.currentUser.id) return;
+               
+                const newText = prompt("Editar mensagem:", msg.content);
+                if(newText !== null && newText.trim() !== '') {
+                    msg.content = newText.trim();
+                    this.saveData();
+                    this.renderChatMessages();
+                    UI.toast("Mensagem editada!", "success");
+                }
+            },
+           
+            deleteMessage: function() {
+                const menu = document.getElementById('msg-context-menu');
+                menu.style.display = 'none';
+                UI.confirm("Eliminar mensagem", "Deseja realmente eliminar esta mensagem?", (ok) => {
+                    if(!ok) return;
+                    const chat = this.db.chats.find(c => c.id === this.activeChatId);
+                    chat.messages = chat.messages.filter(m => m.id !== this.contextMessageId);
+                    this.saveData();
+                    this.renderChatMessages();
+                    this.renderChatList();
+                    UI.toast("Mensagem eliminada.", "info");
+                });
+            },
+           
+            forwardMessage: function() {
+                const menu = document.getElementById('msg-context-menu');
+                menu.style.display = 'none';
+                const chat = this.db.chats.find(c => c.id === this.activeChatId);
+                const msg = chat.messages.find(m => m.id === this.contextMessageId);
+                if(!msg) return;
+                UI.toast("Mensagem copiada para o clipboard. Selecione outro chat para reenviar.", "success");
+                navigator.clipboard.writeText(msg.content).then(() => {
+                    // Simplesmente copia - usuário pode colar em outro chat
+                });
+            },
+           
+            copyMessage: function() {
+                const menu = document.getElementById('msg-context-menu');
+                menu.style.display = 'none';
+                const chat = this.db.chats.find(c => c.id === this.activeChatId);
+                const msg = chat.messages.find(m => m.id === this.contextMessageId);
+                if(msg) {
+                    navigator.clipboard.writeText(msg.content).then(() => {
+                        UI.toast("Mensagem copiada!", "success");
+                    });
+                }
+            },
+           
+            sendChatText: function() {
+                const input = document.getElementById('chat-input-text');
+                if(input.value.trim()) {
+                    this.sendChatMessage('text', input.value.trim());
+                    input.value = '';
+                    input.focus();
+                }
+            },
+           
+            releaseProductFile: function() {
+                const chat = this.db.chats.find(c => c.id === this.activeChatId);
+                const tx = this.db.transactions.find(t => t.id === chat.txId);
+                UI.confirm("Entregar e Receber", `Receber ${tx.amount} Db?`, (ok) => {
+                    if(!ok) return;
+                    tx.status = 'Concluído'; this.currentUser.balance += tx.amount; this.currentUser.sales += 1; this.saveUserContext();
+                    chat.messages.push({ id: 'msg_' + Date.now(), sender: this.currentUser.id, type: 'text', content: "Carga liberada!", time: new Date().toISOString() });
+                    chat.messages.push({ id: 'msg_' + Date.now(), sender: 'system', type: 'text', content: `Pagamento creditado.`, time: new Date().toISOString() });
+                    this.saveData(); this.renderChatMessages(); this.renderChatList();
+                });
+            },
+           
+            renderDashboard: function() {
+                const mySalesTxs = this.db.transactions.filter(t => t.sellerId === this.currentUser.id && t.status.includes('Concluído'));
+                const revenue = mySalesTxs.reduce((acc, curr) => acc + curr.amount, 0);
+                document.getElementById('dash-revenue').innerHTML = `<span>Db</span> ${revenue.toFixed(2)}`;
+                document.getElementById('dash-sales-count').innerText = this.currentUser.sales || 0;
+                document.getElementById('dash-products-count').innerText = this.db.products.filter(p => p.sellerId === this.currentUser.id).length;
+                const tBody = document.getElementById('transactions-list-mini');
+                tBody.innerHTML = '';
+                const myAllTx = this.db.transactions.filter(t => t.sellerId === this.currentUser.id || t.buyerId === this.currentUser.id).reverse().slice(0, 8);
+                myAllTx.forEach(t => {
+                    const isSale = t.sellerId === this.currentUser.id;
+                    const c = isSale ? 'var(--success)' : 'var(--danger)';
+                    tBody.insertAdjacentHTML('beforeend', `<tr><td style="color:var(--text-main); font-weight:600;">${t.pTitle}</td><td><span style="color:${c};"><i class="fas ${isSale?'fa-arrow-up':'fa-arrow-down'}"></i></span></td><td><span class="badge" style="background:${t.status.includes('Concluído')?'rgba(16,185,129,0.2)':'rgba(245,158,11,0.2)'}">${t.status}</span></td><td style="text-align:right; font-weight:bold; color:${c};">Db ${t.amount.toFixed(2)}</td></tr>`);
+                });
+                this.initChart(mySalesTxs);
+            },
+           
+            initChart: function(sales) {
+                const ctx = document.getElementById('financeChart').getContext('2d');
+                if(this.chartInstance) this.chartInstance.destroy();
+                const dp = [0,0,0,0,0,0];
+                sales.forEach((s, i) => { dp[5-(i%6)] += s.amount; });
+                this.chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels: ['-5','-4','-3','-2','-1','Atual'], datasets: [{ label: 'Db', data: dp.length&&sales.length ? dp : [10,30,15,45,60,90], borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)', borderWidth: 3, fill: true, tension: 0.4 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } } }
+                });
+            },
+           
+            renderRanking: function() {
+                const rList = document.getElementById('ranking-list');
+                rList.innerHTML = '';
+                let sorted = [...this.db.users].sort((a,b) => (b.balance||0) - (a.balance||0));
+                sorted.forEach((u, i) => {
+                    let pClass = i===0 ? 'gold' : (i===1 ? 'silver' : (i===2 ? 'bronze' : ''));
+                    rList.insertAdjacentHTML('beforeend', `
+                        <div class="ranking-item" onclick="app.viewUserProfile('${u.id}')">
+                            <div class="ranking-pos ${pClass}">${i+1}º</div>
+                            <div class="ranking-user-info">
+                                <div class="avatar" style="width:50px; height:50px; ${u.avatar ? `background-image:url('${u.avatar}')` : ''}">${u.avatar?'':u.name.charAt(0)}</div>
+                                <div><h3 style="font-size:1.2rem;">${u.name} ${i===0?'<i class="fas fa-star text-warning"></i>':''}</h3></div>
+                            </div>
+                            <div class="ranking-profit">
+                                <h2>Db ${(u.balance||0).toFixed(2)}</h2>
+                            </div>
+                        </div>`);
+                });
+            },
+           
+            renderProfile: function() {
+                const profileId = this.viewingProfileId || this.currentUser.id;
+                const u = this.db.users.find(x => x.id === profileId);
+                if (!u) {
+                    this.switchView('view-dashboard');
+                    UI.toast("Usuário não encontrado.", "error");
+                    return;
+                }
+                const isMyProfile = (u.id === this.currentUser.id);
+                const mySalesTxs = this.db.transactions.filter(t => t.sellerId === u.id && t.status.includes('Concluído'));
+                const totalProfit = mySalesTxs.reduce((acc, curr) => acc + curr.amount, 0);
+                const followersCount = this.db.users.filter(user => user.following && user.following.includes(u.id)).length;
+                const followingCount = u.following ? u.following.length : 0;
+                let followButtonHtml = '';
+                if (!isMyProfile) {
+                    const isFollowing = this.currentUser.following && this.currentUser.following.includes(u.id);
+                    followButtonHtml = `
+                        <button class="btn ${isFollowing ? 'btn-secondary' : 'btn-primary'}"
+                                style="margin-top: 1.5rem; padding: 0.8rem 2rem; width: fit-content;"
+                                onclick="app.toggleFollow('${u.id}', '${u.name}')">
+                            <i class="fas ${isFollowing ? 'fa-user-check' : 'fa-user-plus'}"></i> ${isFollowing ? 'Seguindo' : 'Seguir Produtor'}
+                        </button>`;
+                }
+                document.getElementById('view-profile').innerHTML = `
+                    <div class="profile-cover"></div>
+                    <div style="max-width: 1400px; margin: 0 auto; position: relative; z-index: 2;">
+                        <div class="profile-info-container">
+                            <div id="profile-avatar" class="profile-avatar-large">${u.name.charAt(0)}</div>
+                            <div class="profile-main-text">
+                                <h1>${u.name}</h1>
+                                <p>${u.bio || "Produtor oficial na rede Breakthesystem."}</p>
+                                ${followButtonHtml}
+                            </div>
+                            <div class="profile-stats-bar">
+                                <div class="stat-item"><span>${u.sales || 0}</span><small>Vendas</small></div>
+                                <div class="stat-item"><span style="color: var(--accent);">${followersCount}</span><small>Seguidores</small></div>
+                                <div class="stat-item"><span>${followingCount}</span><small>Seguindo</small></div>
+                                <div class="stat-item"><span style="color: var(--success);">Db ${totalProfit.toFixed(2)}</span><small>Lucro Acum.</small></div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 4rem;">
+                            <h3 style="margin-bottom: 2rem; border-bottom: var(--glass-border); padding-bottom: 1rem;"><i class="fas fa-boxes" style="color:var(--primary);"></i> Vitrine de Criações</h3>
+                            <div id="profile-products-grid" class="grid-5"></div>
+                        </div>
+                    </div>`;
+                this.setAvatar('profile-avatar', u.avatar, u.name);
+                const grid = document.getElementById('profile-products-grid');
+                const myProducts = this.db.products.filter(p => p.sellerId === u.id);
+                if (myProducts.length === 0) {
+                    grid.innerHTML = '<div style="grid-column:1/-1; padding:3rem; text-align:center; color:var(--text-muted);">Sem produtos publicados.</div>';
+                    return;
+                }
+                myProducts.reverse().forEach(p => {
+                    grid.insertAdjacentHTML('beforeend', `
+                        <div class="card product-card">
+                            <div class="product-img" style="background-image:url('${p.image}');">
+                                <span class="product-badge">${p.category}</span>
+                            </div>
+                            <div class="product-content">
+                                <h3 class="product-title">${p.title}</h3>
+                                <p class="product-desc">${p.desc ? p.desc.substring(0, 100) + '...' : ''}</p>
+                                <div class="product-footer">
+                                    <div class="product-price"><span>Db</span> ${p.price.toFixed(2)}</div>
+                                    <button class="btn btn-secondary" onclick="app.switchView('view-marketplace')">Ver na Loja</button>
+                                </div>
+                            </div>
+                        </div>`);
+                });
+            },
+           
+            exportCSV: function() {
+                const txs = this.db.transactions.filter(t => t.sellerId === this.currentUser.id || t.buyerId === this.currentUser.id);
+                let csv = "ID,DATA,PRODUTO,TIPO,VALOR,STATUS\n";
+                txs.forEach(t => csv += `${t.id},${new Date(t.date).toLocaleDateString()},"${t.pTitle}",${t.sellerId===this.currentUser.id?"Receita":"Despesa"},${t.amount},${t.status}\n`);
+                const link = document.createElement("a"); link.setAttribute("href", URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })));
+                link.setAttribute("download", "Relatorio.csv"); document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            },
+           
+            factoryReset: function() {
+                UI.confirm("Destruição", "Isso deletará o banco de dados.", (ok) => {
+                    if(ok) { localStorage.removeItem('bts_database_v5'); localStorage.removeItem('bts_session_v5'); location.reload(); }
+                });
+            },
+           
+            setupEvents: function() {
+                document.querySelectorAll('.nav-item').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        if (e.currentTarget.id === 'nav-meu-perfil') this.viewingProfileId = null;
+                        this.switchView(e.currentTarget.getAttribute('data-target'));
+                    });
+                });
+                document.getElementById('auth-form').addEventListener('submit', (e) => {
+                    e.preventDefault(); this.processLogin(document.getElementById('auth-name').value.trim(), document.getElementById('auth-email').value.trim(), document.getElementById('auth-pass').value);
+                });
+                document.getElementById('toggle-auth-mode').addEventListener('click', (e) => { e.preventDefault(); this.toggleAuthMode(); });
+                document.getElementById('prod-image-file').addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if(file) { ImageTools.resizeBase64(file, 800, 800, (base64) => { this.tempProductImageBase64 = base64; document.getElementById('prod-img-preview').src = base64; document.getElementById('prod-img-preview-container').style.display = 'flex'; }); }
+                });
+                document.getElementById('form-create-product').addEventListener('submit', (e) => {
+                    e.preventDefault(); this.createProduct(document.getElementById('prod-title').value, document.getElementById('prod-desc').value, document.getElementById('prod-price').value, document.getElementById('prod-category').value);
+                });
+                document.getElementById('search-marketplace').addEventListener('input', (e) => this.renderMarketplace(document.getElementById('filter-marketplace').value, e.target.value));
+                document.getElementById('filter-marketplace').addEventListener('change', (e) => this.renderMarketplace(e.target.value, document.getElementById('search-marketplace').value));
+                document.getElementById('set-avatar-file').addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if(file) { ImageTools.resizeBase64(file, 300, 300, (b64) => { this.tempAvatarBase64 = b64; document.getElementById('settings-avatar-preview-box').style.backgroundImage = `url('${b64}')`; document.getElementById('settings-avatar-preview-box').innerHTML = ''; }); }
+                });
+                document.getElementById('form-settings').addEventListener('submit', (e) => {
+                    e.preventDefault(); this.currentUser.name = document.getElementById('set-name').value; this.currentUser.bio = document.getElementById('set-bio').value;
+                    if(this.tempAvatarBase64) this.currentUser.avatar = this.tempAvatarBase64;
+                    this.saveUserContext(); this.updateGlobalUI(); this.tempAvatarBase64 = null; UI.toast("Perfil atualizado.", "success");
+                });
+                document.getElementById('btn-send-msg').onclick = () => this.sendChatText();
+                document.getElementById('chat-input-text').onkeypress = (e) => { if(e.key === 'Enter') this.sendChatText(); };
+                document.getElementById('btn-attach-img').onclick = () => document.getElementById('chat-img-upload').click();
+                document.getElementById('chat-img-upload').addEventListener('change', (e) => { 
+                    const file = e.target.files[0]; 
+                    if(file) { ImageTools.resizeBase64(file, 800, 800, (base64) => { this.sendChatMessage('image', base64); }); } 
+                    e.target.value = ''; 
+                });
+                document.getElementById('btn-send-product').onclick = () => this.releaseProductFile();
+                
+                // Clique fora do menu de contexto
+                document.addEventListener('click', () => {
+                    const menu = document.getElementById('msg-context-menu');
+                    if(menu) menu.style.display = 'none';
+                });
+            },
+           
+            initBackground: function() {
+                const cvs = document.getElementById('bg-canvas'); const ctx = cvs.getContext('2d');
+                let w, h; function resize() { w = cvs.width = window.innerWidth; h = cvs.height = window.innerHeight; }
+                window.addEventListener('resize', resize); resize();
+                const nodes = []; class Node { constructor() { this.x = Math.random()*w; this.y = Math.random()*h; this.vx = (Math.random()-0.5)*0.5; this.vy = (Math.random()-0.5)*0.5; this.r = Math.random()*2+1; } draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI*2); ctx.fillStyle = 'rgba(59,130,246,0.4)'; ctx.fill(); } update() { this.x += this.vx; this.y += this.vy; if(this.x>w||this.x<0) this.vx=-this.vx; if(this.y>h||this.y<0) this.vy=-this.vy; } }
+                for(let i=0; i<100; i++) nodes.push(new Node());
+                function animate() { requestAnimationFrame(animate); ctx.clearRect(0,0,w,h); nodes.forEach(n => { n.update(); n.draw(); }); }
+                animate();
+            }
+        };
         window.onload = () => app.init();
     </script>
 </body>
