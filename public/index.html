@@ -78,14 +78,16 @@
         /* ==========================================================================
            3. BACKGROUND ANIMADO E LAYOUT PRINCIPAL
            ========================================================================== */
-        #bg-canvas {
+                #bg-canvas {
             position: absolute;
             top: 0; left: 0;
             width: 100vw; height: 100vh;
             z-index: 0;
             pointer-events: none;
-            background: radial-gradient(circle at center, #0f172a 0%, #030712 100%);
+            /* Fundo Azul Oceano Profundo */
+            background: radial-gradient(circle at center, #0a2540 0%, #020c1b 100%);
         }
+
         #app-container {
             display: flex;
             width: 100%; height: 100%;
@@ -1100,6 +1102,8 @@
         /* ==========================================================================
            APLICAÇÃO PRINCIPAL BREAKTHESYSTEM (ATUALIZADA)
            ========================================================================== */
+                const API_URL = 'https://seu-backend.onrender.com/api/db'; // ⚠️ COLOQUE SUA URL AQUI
+
         const app = {
             currentUser: null,
             viewingProfileId: null,
@@ -1108,41 +1112,60 @@
             chartInstance: null,
             authMode: 'login',
             activeChatId: null,
-            contextMessageId: null,   // Para menu de contexto
+            contextMessageId: null,
            
             db: { users: [], products: [], transactions: [], chats: [] },
            
-            init: function() {
-                this.loadData();
+            // 1. O INIT AGORA É ASYNC PARA ESPERAR OS DADOS CARREGAREM
+            init: async function() {
+                await this.loadData(); // Aguarda o download dos dados do servidor
                 this.setupEvents();
                 this.initBackground();
                 this.checkAuth();
                 this.updateAuthFormUI();
             },
            
-            loadData: function() {
-                const stored = localStorage.getItem('bts_database_v5');
-                if (stored) {
-                    try {
-                        const parsedDB = JSON.parse(stored);
+            // 2. LOADDATA AGORA FAZ UM GET NO SERVIDOR
+            loadData: async function() {
+                try {
+                    const response = await fetch(API_URL);
+                    if (response.ok) {
+                        const parsedDB = await response.json();
                         this.db.users = parsedDB.users || [];
                         this.db.products = parsedDB.products || [];
                         this.db.transactions = parsedDB.transactions || [];
                         this.db.chats = parsedDB.chats || [];
-                    } catch(e) { console.error("Corrupt DB", e); }
+                    } else {
+                        console.warn("Nenhum dado retornado do servidor, iniciando DB vazio.");
+                    }
+                } catch(e) { 
+                    console.error("Erro fatal ao carregar do servidor Render", e);
+                    UI.toast("Não foi possível conectar ao servidor central.", "error");
                 }
             },
            
-            saveData: function() {
-                setTimeout(() => {
-                    try {
-                        localStorage.setItem('bts_database_v5', JSON.stringify(this.db));
-                    } catch (e) {
-                        console.error("Erro ao salvar: Banco de dados muito grande.");
-                        UI.toast("Memória cheia! Tente apagar mensagens antigas.", "error");
+            // 3. SAVEDATA AGORA FAZ UM POST/PUT NO SERVIDOR
+            saveData: async function() {
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST', // Use PUT ou POST de acordo com sua API
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(this.db)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error("Erro ao confirmar salvamento no banco de dados.");
                     }
-                }, 0);
+                } catch (e) {
+                    console.error("Erro de sincronização:", e);
+                    UI.toast("Desconectado do servidor. Tentando sincronizar...", "error");
+                }
             },
+
+            // ... (resto do seu código continua a partir do sendChatMessage)
+
            
             // ENVIO INSTANTÂNEO DE MENSAGENS (com ID único)
             sendChatMessage: function(type, content, fileName = '') {
@@ -1772,15 +1795,147 @@
                 });
             },
            
-            initBackground: function() {
-                const cvs = document.getElementById('bg-canvas'); const ctx = cvs.getContext('2d');
-                let w, h; function resize() { w = cvs.width = window.innerWidth; h = cvs.height = window.innerHeight; }
-                window.addEventListener('resize', resize); resize();
-                const nodes = []; class Node { constructor() { this.x = Math.random()*w; this.y = Math.random()*h; this.vx = (Math.random()-0.5)*0.5; this.vy = (Math.random()-0.5)*0.5; this.r = Math.random()*2+1; } draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI*2); ctx.fillStyle = 'rgba(59,130,246,0.4)'; ctx.fill(); } update() { this.x += this.vx; this.y += this.vy; if(this.x>w||this.x<0) this.vx=-this.vx; if(this.y>h||this.y<0) this.vy=-this.vy; } }
-                for(let i=0; i<100; i++) nodes.push(new Node());
-                function animate() { requestAnimationFrame(animate); ctx.clearRect(0,0,w,h); nodes.forEach(n => { n.update(); n.draw(); }); }
+                                    initBackground: function() {
+                const cvs = document.getElementById('bg-canvas'); 
+                const ctx = cvs.getContext('2d');
+                let w, h; 
+                
+                function resize() { 
+                    w = cvs.width = window.innerWidth; 
+                    h = cvs.height = window.innerHeight; 
+                }
+                window.addEventListener('resize', resize); 
+                resize();
+                
+                // 1. Partículas flutuantes (bolhas/energia)
+                const nodes = []; 
+                class Node { 
+                    constructor() { 
+                        this.x = Math.random()*w; 
+                        this.y = Math.random()*h; 
+                        this.vx = (Math.random()-0.5)*0.5; 
+                        this.vy = (Math.random()-0.5)*0.5; 
+                        this.r = Math.random()*2+1; 
+                    } 
+                    draw() { 
+                        ctx.beginPath(); 
+                        ctx.arc(this.x, this.y, this.r, 0, Math.PI*2); 
+                        ctx.fillStyle = 'rgba(14, 165, 233, 0.3)'; // Ciano mais suave
+                        ctx.fill(); 
+                    } 
+                    update() { 
+                        this.x += this.vx; 
+                        this.y += this.vy; 
+                        if(this.x>w||this.x<0) this.vx=-this.vx; 
+                        if(this.y>h||this.y<0) this.vy=-this.vy; 
+                    } 
+                }
+                for(let i=0; i<80; i++) nodes.push(new Node());
+
+                // 2. Classe Geradora de Raios (Efeito Profissional)
+                class Lightning {
+                    constructor() {
+                        this.segments = [];
+                        this.alpha = 1; // Opacidade inicial
+                        this.x = Math.random() * w; // Posição horizontal aleatória
+                        this.y = 0; // Começa do topo
+                        
+                        let currentX = this.x;
+                        let currentY = this.y;
+                        this.segments.push({x: currentX, y: currentY});
+                        
+                        // Cria o caminho "quebrado" do raio
+                        while(currentY < h) {
+                            currentX += (Math.random() - 0.5) * 80; // Desvio horizontal
+                            currentY += Math.random() * 40 + 20;    // Descida vertical
+                            this.segments.push({x: currentX, y: currentY});
+                        }
+                    }
+                    
+                    update() {
+                        // Faz o raio desaparecer rapidamente (efeito de flash)
+                        this.alpha -= 0.04; 
+                    }
+                    
+                    draw() {
+                        if (this.alpha <= 0) return;
+                        
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.moveTo(this.segments[0].x, this.segments[0].y);
+                        
+                        for(let i = 1; i < this.segments.length; i++) {
+                            ctx.lineTo(this.segments[i].x, this.segments[i].y);
+                        }
+                        
+                        // Estilização do Raio
+                        ctx.strokeStyle = `rgba(100, 200, 255, ${this.alpha})`; // Azul elétrico
+                        ctx.lineWidth = Math.random() * 2 + 1; // Espessura tremeluzente
+                        ctx.shadowBlur = 20;
+                        ctx.shadowColor = '#0ea5e9'; // Glow ciano
+                        
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                }
+
+                let lightnings = [];
+                let time = 0; 
+
+                // LOOP DE ANIMAÇÃO PRINCIPAL
+                function animate() { 
+                    requestAnimationFrame(animate); 
+                    ctx.clearRect(0,0,w,h); 
+                    
+                    // A. Atualiza e desenha partículas
+                    nodes.forEach(n => { n.update(); n.draw(); }); 
+                    
+                    // B. Lógica de Geração de Raios
+                    // 1% de chance de gerar um raio a cada frame (aleatório e orgânico)
+                    if (Math.random() < 0.01) {
+                        lightnings.push(new Lightning());
+                    }
+                    
+                    // Atualiza e desenha os raios ativos
+                    for (let i = lightnings.length - 1; i >= 0; i--) {
+                        lightnings[i].update();
+                        lightnings[i].draw();
+                        // Remove o raio da memória quando ficar invisível
+                        if (lightnings[i].alpha <= 0) {
+                            lightnings.splice(i, 1);
+                        }
+                    }
+                    
+                    // C. DESENHA A CORDA BRILHANTE AZUL (Mantida)
+                    time += 0.015; 
+                    ctx.save();
+                    ctx.beginPath();
+                    
+                    ctx.shadowBlur = 30;
+                    ctx.shadowColor = '#0ea5e9'; 
+                    ctx.strokeStyle = 'rgba(14, 165, 233, 0.9)';
+                    ctx.lineWidth = 2.5;
+                    
+                    for (let x = 0; x <= w; x += 10) {
+                        let y = (h / 2) 
+                              + Math.sin(x * 0.003 + time) * 80     
+                              + Math.sin(x * 0.008 - time * 1.5) * 40; 
+                              
+                        if (x === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    }
+                    
+                    ctx.stroke(); 
+                    ctx.restore(); 
+                }
+                
                 animate();
             }
+
+
         };
         window.onload = () => app.init();
     </script>
